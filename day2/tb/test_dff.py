@@ -7,6 +7,8 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.runner import get_runner
 from cocotb.triggers import RisingEdge
+from cocotb.triggers import FallingEdge
+from cocotb.triggers import Timer
 from cocotb.types import LogicArray
 
 
@@ -20,6 +22,7 @@ async def dff_test(dut):
     dut.d_i.value = 0
 
     clock = Clock(dut.clk, 10, units="us")  # Create a 10us period clock on port clk
+    dut.reset.value = 0
     # Start the clock. Start it low to avoid issues on the first RisingEdge
     cocotb.start_soon(clock.start(start_high=False))
 
@@ -36,6 +39,21 @@ async def dff_test(dut):
     # Check the final input on the next clock
     await RisingEdge(dut.clk)
     assert dut.q_norst_o.value == expected_val, "output q was incorrect on the last cycle"
+    # Check for rst functionality
+
+    dut.d_i.value = 1
+    await FallingEdge(dut.clk)
+    dut.reset.value = 1
+
+    await RisingEdge(dut.clk)
+    assert dut.q_norst_o.value == 1, f"output q was incorrect on reset"
+    assert dut.q_asyncrst_o.value == 0, f"async q was incorrect on reset"
+    assert dut.q_syncrst_o.value == 1, f"sync q resetting incorrectly"
+
+    await FallingEdge(dut.clk)
+    assert dut.q_norst_o.value == 1, f"output q was incorrect on reset"
+    assert dut.q_asyncrst_o.value == 0, f"async q was incorrect on reset"
+    assert dut.q_syncrst_o.value == 0, f"sync q was incorrect on reset"
 
 
 def test_simple_dff_runner():
