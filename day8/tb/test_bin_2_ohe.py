@@ -12,11 +12,11 @@ from cocotb.triggers import Timer
 async def bin_2_ohe_test(dut):
     for i in range(10):
         val = random.randint(0, 15)
-        dut.bin_i = val
+        dut.bin_i.value = val
 
         await Timer(2, units ="ns")
         ohe = 1 << val
-        assert dut.one_hot_o == ohe, "Randomized test failed with: {val}".format(val=val)
+        assert dut.one_hot_o.value == ohe, "Randomized test failed with: {val}".format(val=val)
 
 def test_bin_2_ohe_runner():
     hdl_toplevel_lang = os.getenv("HDL_TOPLEVEL_LANG", "verilog")
