@@ -25,7 +25,7 @@ async def test_mux(dut):
         
         assert dut.y_o == mux_model(
                 a_i, b_i, sel_i
-        ), "Randomized test failed with: ({sel_i}, {a_i}, {b_i}".format(
+        ), "Randomized test failed with: {sel_i}, {a_i}, {b_i}".format(
         sel_i=dut.sel_i, a_i=dut.a_i, b_i = dut.b_i
         )
 
